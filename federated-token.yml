@@ -1,0 +1,36 @@
+name: Entra FIC - No Secrets
+
+on:
+  workflow_dispatch:  # allows manual trigger
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  get-token:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Get OIDC token from GitHub
+      id: oidc
+      run: |
+        echo "Requesting GitHub OIDC token"
+        ID_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://AzureADTokenExchange")
+        echo "ID_TOKEN=$ID_TOKEN" >> $GITHUB_ENV
+
+    - name: Exchange for Entra access token
+      run: |
+        CLIENT_ID="<YOUR_APP_CLIENT_ID>"
+        TENANT_ID="<YOUR_TENANT_ID>"
+
+        ACCESS_TOKEN=$(curl -s -X POST "https://login.microsoftonline.com/$TENANT_ID/oauth2/v2.0/token" \
+          -H "Content-Type: application/x-www-form-urlencoded" \
+          -d "client_id=$CLIENT_ID" \
+          -d "scope=https://graph.microsoft.com/.default" \
+          -d "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
+          -d "requested_token_use=on_behalf_of" \
+          -d "subject_token_type=urn:ietf:params:oauth:token-type:jwt" \
+          -d "subject_token=$ID_TOKEN")
+
+        echo "$ACCESS_TOKEN"
