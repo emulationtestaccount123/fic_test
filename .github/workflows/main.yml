@@ -16,8 +16,8 @@ jobs:
     - name: Login to Azure using Federated Identity Credential
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        client-id: '9743933c-6bb5-4aca-847f-57e299df1689'
+        tenant-id: '9743933c-6bb5-4aca-847f-57e299df1689'
         allow-no-subscriptions: true
 
     - name: Verify Azure login
